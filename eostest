@@ -1,0 +1,55 @@
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.css" type="text/css">
+    <style>
+        .map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/4.6.5/ol.js" type="text/javascript"></script>
+    <title>EOS API Quickstart</title>
+</head>
+<body>
+<h2>EOS API Quickstart</h2>
+<div id="map" class="map"></div>
+<script type="text/javascript">
+    var apiKey = 'apk.cf4a8a8e08e0775ebce46491d5018e4b85ea176c5c0adaf2cda6f570f08abd05';
+    var searchRequest = {
+      'search': {
+        'dayOrNight': 'day',
+        'shape': {
+          'type': 'Point',
+          'coordinates': [-120.56620, 37.6048],
+        },
+        'onAmazon': true,
+      },
+      'page': 1,
+      'limit': 1,
+    };
+
+    $.post('https://gate.eos.com/api/lms/search/v2/landsat8?api_key=' + apiKey, JSON.stringify(searchRequest), renderScene, 'JSON');
+
+    function renderScene(response) {
+      console.log(response);
+      viewId = response.results[0].view_id;
+      sceneUrl = 'http://{a-d}-gate.eos.com/api/render/' + viewId + '/B4,B3,B2/{z}/{x}/{y}?api_key=' + apiKey;
+      new ol.Map({
+        target: 'map',
+        layers: [new ol.layer.Tile({
+          source: new ol.source.XYZ({
+            url: sceneUrl,
+          }),
+        })],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([-120.56620, 37.6048]),
+          zoom: 12,
+          maxZoom: 15,
+          minZoom: 7,
+        }),
+      });
+    }
+</script>
+</body>
+</html>
